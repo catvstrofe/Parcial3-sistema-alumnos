@@ -23,6 +23,10 @@ SECRET_KEY = os.environ.get("SECRET_KEY") or os.urandom(32).hex()
 ADMIN_USUARIO = "admin"
 ADMIN_CLAVE_HASH = os.environ.get("ADMIN_CLAVE_HASH") or generate_password_hash("admin")
 app.config["SECRET_KEY"] = SECRET_KEY
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
 
 ## Versión desplegada: la inyecta el pipeline (1.0.<build>+<commit>). Sirve para la trazabilidad.
 VERSION = os.environ.get("APP_VERSION", "dev")
