@@ -1,6 +1,6 @@
 # Registro de seguridad · Sistema Alumnos
 
-Estudiante: ____________________   Repositorio: https://github.com/catvstrofe/Parcial3-sistema-alumnos   Fecha: 2026-11-23
+Estudiante: Catalina Orostica  Repositorio: https://github.com/catvstrofe/Parcial3-sistema-alumnos   Fecha: 2026-11-23
 
 Completa este registro a medida que avanzas. Cada fila debe poder seguirse hasta un **build de Jenkins**
 y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
