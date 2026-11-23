@@ -17,6 +17,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 | R6 | Verificación SAST | Bandit en el pipeline | #5 | 0 High / 0 Medium / 0 Low |
 | R7 | Verificación DAST | OWASP ZAP sobre staging | #5 | 0 High / 0 Medium / 0 Low |
 | R8 | Verificación post-mitigación | Grafana + logs de producción | #7 | 11 bloqueos (HTTP 429), 0 accesos exitosos, alertas en Firing |
+| R9 | Dependencias (post-actualización) | pip-audit en el pipeline | #10 | 0 vulnerabilidades (No known vulnerabilities found) |
 
 ## 2. Vulnerabilidades identificadas y corregidas
 
@@ -57,11 +58,12 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 
 | Paquete | Versión inicial | Vulnerabilidades (IDs) | Versión final | Origen del cambio (PR de Dependabot / manual) | ¿Pruebas, pip-audit y ZAP siguen OK? Build |
 |---|---|---|---|---|---|
-| Flask | 2.2.2 | | | | |
-| Werkzeug | 2.2.2 | | | | |
-| Jinja2 | 3.1.2 | | | | |
-| gunicorn | 21.2.0 | | | | |
-| prometheus-client | 0.17.1 | | | | |
+| Flask | 2.2.2 | PYSEC-2023-62, PYSEC-2026-2151 | 3.1.3 | PR de Dependabot #1 | Sí, build #10 (pip-audit 0, ZAP 0/0, 9/9 pruebas) |
+| Werkzeug | 2.2.2 | PYSEC-2023-58, PYSEC-2023-57, PYSEC-2023-221, PYSEC-2026-2043/2044/2045/2046/2320/3417/4312 | 3.1.9 | PR de Dependabot #1 | Sí, build #10 |
+| Jinja2 | 3.1.2 | PYSEC-2026-1471/1472/1473/1474/1475 | 3.1.6 | PR de Dependabot #1 | Sí, build #10 |
+| gunicorn | 21.2.0 | PYSEC-2026-1433, PYSEC-2026-1434 | 27.0.1 | PR de Dependabot #1 | Sí, build #10 |
+| prometheus-client | 0.17.1 | Sin vulnerabilidades reportadas | 0.26.0 | PR de Dependabot #1 | Sí, build #10 |
+| pytest (dev) | 8.3.4 | Sin vulnerabilidades reportadas | 9.2.0 | PR de Dependabot #1 | Sí, build #10 |
 
 ## 6. Trazabilidad
 
