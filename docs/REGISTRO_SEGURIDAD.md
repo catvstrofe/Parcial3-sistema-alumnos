@@ -13,7 +13,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 | R2 | Dependencias (SCA) | pip-audit en el pipeline | #2 | 19 vulnerabilidades en 4 paquetes |
 | R3 | Pruebas dinámicas (DAST) | OWASP ZAP sobre staging | #3 | 3 High / 3 Medium / 1 Low |
 | R4 | Revisión manual | Lectura de `app.py` | — | SQLi, XSS, MD5, secreto hardcodeado, CSRF, debug |
-| R5 | Producción | Grafana + Prometheus | — | Pendiente (Evidencia 7) |
+| R5 | Producción | Grafana + Prometheus | — | Dashboard de producción y 2 alertas (fuerza bruta y peticiones sospechosas) |
 | R6 | Verificación SAST | Bandit en el pipeline | #5 | 0 High / 0 Medium / 0 Low |
 | R7 | Verificación DAST | OWASP ZAP sobre staging | #5 | 0 High / 0 Medium / 0 Low |
 
@@ -48,7 +48,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 
 | Hora | Panel / métrica de Grafana | Qué se observó | Entorno | Clasificación | Acción de respuesta | Verificación |
 |---|---|---|---|---|---|---|
-| | | | | | | |
+| 18:59 local / 21:59 UTC | `login_fallidos_total`, `login_exitosos_total`, `peticiones_sospechosas_total{tipo}` | Fuerza bruta: 30 logins fallidos y 1 exitoso con la clave por defecto `admin`; 1 SQLi y 1 XSS detectados. Alertas "Fuerza bruta en login" y "Peticiones sospechosas" en Firing. | Producción | Alta (acceso no autorizado por fuerza bruta + intento de SQLi/XSS) | Se revisó el log, se confirmó la causa (contraseña por defecto), se verificó que SQLi/XSS no tuvieron efecto (consulta parametrizada y escape) y se documentó la recomendación de rotar credenciales y limitar intentos. | Alertas en Firing durante el ataque y vuelta a Normal al cesar el tráfico; `login_exitosos_total` evidencia el acceso. |
 
 ## 5. Gestión de dependencias
 
