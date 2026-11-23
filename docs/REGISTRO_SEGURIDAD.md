@@ -1,6 +1,6 @@
 # Registro de seguridad · Sistema Alumnos
 
-Estudiante: ____________________   Repositorio: ____________________   Fecha: __________
+Estudiante: ____________________   Repositorio: https://github.com/catvstrofe/Parcial3-sistema-alumnos   Fecha: 2026-11-23
 
 Completa este registro a medida que avanzas. Cada fila debe poder seguirse hasta un **build de Jenkins**
 y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
@@ -9,27 +9,40 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 
 | # | Etapa del SDLC | Herramienta / técnica | Build | Resultado (resumen) |
 |---|---|---|---|---|
-| R1 | Código (SAST) | Bandit en el pipeline | #__ | __ hallazgos High / __ Medium / __ Low |
-| R2 | Dependencias (SCA) | pip-audit en el pipeline | #__ | __ vulnerabilidades en __ paquetes |
-| R3 | Pruebas dinámicas (DAST) | OWASP ZAP sobre staging | #__ | __ High / __ Medium / __ Low |
-| R4 | Revisión manual | Lectura de `app.py` | — | |
-| R5 | Producción | Grafana + Prometheus | — | |
+| R1 | Código (SAST) | Bandit en el pipeline | #2 | 2 High / 2 Medium / 1 Low (detección) |
+| R2 | Dependencias (SCA) | pip-audit en el pipeline | #2 | 19 vulnerabilidades en 4 paquetes |
+| R3 | Pruebas dinámicas (DAST) | OWASP ZAP sobre staging | #3 | 3 High / 3 Medium / 1 Low |
+| R4 | Revisión manual | Lectura de `app.py` | — | SQLi, XSS, MD5, secreto hardcodeado, CSRF, debug |
+| R5 | Producción | Grafana + Prometheus | — | Pendiente (Evidencia 7) |
+| R6 | Verificación SAST | Bandit en el pipeline | #5 | 0 High / 0 Medium / 0 Low |
+| R7 | Verificación DAST | OWASP ZAP sobre staging | #5 | 0 High / 0 Medium / 0 Low |
 
 ## 2. Vulnerabilidades identificadas y corregidas
 
 | ID | Vulnerabilidad (CWE) | Detectada por | Ubicación | Riesgo | Corrección aplicada | Commit | Build que lo verifica |
 |---|---|---|---|---|---|---|---|
-| VULN-01 | | | `app.py:__` | | | | #__ |
-| VULN-02 | | | | | | | |
-| VULN-03 | | | | | | | |
-
-(Agrega las filas que necesites.)
+| VULN-01 | Inyección SQL (CWE-89) | Bandit B608 / ZAP | `app.py:205` | High | Consulta parametrizada `LIKE ?` | `8504066` | #5 |
+| VULN-02 | XSS reflejado/DOM (CWE-79) | OWASP ZAP | `app.py:154` | High | Escape de `name` con `markupsafe` | `fa66794` | #5 |
+| VULN-03 | Secreto hardcodeado (CWE-798) | Bandit B105 | `app.py:20` | Low | `SECRET_KEY` desde entorno o aleatoria | `be8364c` | #5 |
+| VULN-04 | Hash MD5 de contraseña (CWE-916) | Bandit B324 | `app.py:22,221` | High | `generate_password_hash` / `check_password_hash` | `3295e3e` | #5 |
+| VULN-05 | Fuga de información en errores (CWE-209) | Revisión manual | `app.py:209` | Medium | Error genérico sin SQL | `bd820ab` | #5 |
+| VULN-06 | CSRF en `/login` (CWE-352) | OWASP ZAP | `app.py:69-72,213` | Medium | Token anti-CSRF en sesión | `fc52fe9` | #5 |
+| VULN-07 | Debug y bind 0.0.0.0 (CWE-489/605) | Bandit B201/B104 | `app.py:241` | High/Medium | `debug=False` y host local por defecto | `993bd32` | #5 |
+| VULN-08 | Cabeceras de seguridad faltantes (CWE-693) | OWASP ZAP | `after_request` | Medium | CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy | `e832a51`, `7c3c3f1` | #5 |
+| VULN-09 | Flags de cookie (CWE-1004) | Revisión / ZAP | configuración Flask | Low | `HttpOnly` + `SameSite=Lax` | `adf9725` | #5 |
 
 ## 3. Resultados de OWASP ZAP
 
 | Alerta de ZAP | Riesgo | URL de ejemplo | VULN relacionada | Cómo se mitiga | ¿Mitigada? Build |
 |---|---|---|---|---|---|
-| | | | | | |
+| Cross Site Scripting (DOM Based) | High | `http://jenkins:5001/hello?name=...` | VULN-02 | Escape de la salida con `markupsafe` | Sí, #5 |
+| Cross Site Scripting (Reflected) | High | `http://jenkins:5001/hello?name=...` | VULN-02 | Escape de la salida con `markupsafe` | Sí, #5 |
+| SQL Injection | High | `http://jenkins:5001/alumnos/buscar?nombre=%27` | VULN-01 | Consulta parametrizada | Sí, #5 |
+| Absence of Anti-CSRF Tokens | Medium | `http://jenkins:5001` | VULN-06 | Token anti-CSRF en sesión | Sí, #5 |
+| Content Security Policy (CSP) Header Not Set | Medium | `http://jenkins:5001` | VULN-08 | Cabecera `Content-Security-Policy` | Sí, #5 |
+| Missing Anti-clickjacking Header | Medium | `http://jenkins:5001` | VULN-08 | `X-Frame-Options` y `frame-ancestors` | Sí, #5 |
+| CSP: Failure to Define Directive with No Fallback | Medium | `http://jenkins:5001` | VULN-08 | `form-action 'self'` | Sí, #5 |
+| X-Content-Type-Options Header Missing | Low | `http://jenkins:5001` | VULN-08 | `X-Content-Type-Options: nosniff` | Sí, #5 |
 
 ## 4. Monitoreo e incidentes
 
