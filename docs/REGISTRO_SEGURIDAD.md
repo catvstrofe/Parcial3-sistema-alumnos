@@ -16,6 +16,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 | R5 | Producción | Grafana + Prometheus | — | Dashboard de producción y 2 alertas (fuerza bruta y peticiones sospechosas) |
 | R6 | Verificación SAST | Bandit en el pipeline | #5 | 0 High / 0 Medium / 0 Low |
 | R7 | Verificación DAST | OWASP ZAP sobre staging | #5 | 0 High / 0 Medium / 0 Low |
+| R8 | Verificación post-mitigación | Grafana + logs de producción | #7 | 11 bloqueos (HTTP 429), 0 accesos exitosos, alertas en Firing |
 
 ## 2. Vulnerabilidades identificadas y corregidas
 
@@ -30,6 +31,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 | VULN-07 | Debug y bind 0.0.0.0 (CWE-489/605) | Bandit B201/B104 | `app.py:241` | High/Medium | `debug=False` y host local por defecto | `993bd32` | #5 |
 | VULN-08 | Cabeceras de seguridad faltantes (CWE-693) | OWASP ZAP | `after_request` | Medium | CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy | `e832a51`, `7c3c3f1` | #5 |
 | VULN-09 | Flags de cookie (CWE-1004) | Revisión / ZAP | configuración Flask | Low | `HttpOnly` + `SameSite=Lax` | `adf9725` | #5 |
+| VULN-10 | Fuerza bruta / falta de limitación de intentos (CWE-307) | Simulación de ataque | `app.py:213-231` | High | Límite de 20 fallos por IP en 60 s (HTTP 429) | `3c028e4` | #7 |
 
 ## 3. Resultados de OWASP ZAP
 
@@ -49,6 +51,7 @@ y un **commit** (usa el identificador `VULN-xx` en el mensaje del commit).
 | Hora | Panel / métrica de Grafana | Qué se observó | Entorno | Clasificación | Acción de respuesta | Verificación |
 |---|---|---|---|---|---|---|
 | 18:59 local / 21:59 UTC | `login_fallidos_total`, `login_exitosos_total`, `peticiones_sospechosas_total{tipo}` | Fuerza bruta: 30 logins fallidos y 1 exitoso con la clave por defecto `admin`; 1 SQLi y 1 XSS detectados. Alertas "Fuerza bruta en login" y "Peticiones sospechosas" en Firing. | Producción | Alta (acceso no autorizado por fuerza bruta + intento de SQLi/XSS) | Se revisó el log, se confirmó la causa (contraseña por defecto), se verificó que SQLi/XSS no tuvieron efecto (consulta parametrizada y escape) y se documentó la recomendación de rotar credenciales y limitar intentos. | Alertas en Firing durante el ataque y vuelta a Normal al cesar el tráfico; `login_exitosos_total` evidencia el acceso. |
+| 19:38 local / 22:38 UTC | `login_fallidos_total`, `login_bloqueados_total`, `login_exitosos_total` | Ataque repetido tras VULN-10: 31 intentos, 11 bloqueados (HTTP 429), 0 accesos exitosos; SQLi y XSS sin efecto. Alertas en Firing. | Producción | Alta (verificación de mitigación) | Se aplicó la limitación de intentos (VULN-10) y se verificó el bloqueo; se mantiene la recomendación de rotar credenciales. | `login_exitosos_total=0`; 11 respuestas 429; alertas en Firing; build #7 SUCCESS. |
 
 ## 5. Gestión de dependencias
 
