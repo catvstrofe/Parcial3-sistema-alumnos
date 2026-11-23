@@ -71,12 +71,12 @@ Pega aquí (o adjunta) el `TRAZABILIDAD.md` del último build y completa un reco
 
 | Actividad | Hallazgo | Build que lo detectó | Commit / PR que lo resolvió | Build que lo verificó | Versión en producción |
 |---|---|---|---|---|---|
-| Revisión de seguridad (Bandit) | 2 High / 2 Medium / 1 Low (SQLi, MD5, secreto, debug/bind) | #2 | VULN-01…VULN-10 | #5 (Bandit 0/0/0) | 1.0.12+2f5ab79 |
-| Prueba automatizada (OWASP ZAP) | 3 High / 3 Medium / 1 Low (SQLi, XSS, CSRF, cabeceras) | #3 | VULN-01, VULN-02, VULN-06, VULN-08 | #5 (ZAP 0/0/0) | 1.0.12+2f5ab79 |
-| Gestión de dependencias (Dependabot) | 19 vulnerabilidades en 4 paquetes | #2 | PR #1 | #10 (pip-audit 0) | 1.0.12+2f5ab79 |
+| Revisión de seguridad (Bandit) | 2 High / 2 Medium / 1 Low (SQLi, MD5, secreto, debug/bind) | #2 | VULN-01…VULN-10 | #5 (Bandit 0/0/0) | 1.0.13+4ddf4cb |
+| Prueba automatizada (OWASP ZAP) | 3 High / 3 Medium / 1 Low (SQLi, XSS, CSRF, cabeceras) | #3 | VULN-01, VULN-02, VULN-06, VULN-08 | #5 (ZAP 0/0/0) | 1.0.13+4ddf4cb |
+| Gestión de dependencias (Dependabot) | 19 vulnerabilidades en 4 paquetes | #2 | PR #1 | #10 (pip-audit 0) | 1.0.13+4ddf4cb |
 
-Último build (trazabilidad):
+Build de verificación final (trazabilidad):
 
-`| 12 | 2026-11-23 23:16 | 1.0.12+2f5ab79 | 2f5ab79 | Update student name in security log | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.12+2f5ab79 |`
+`| 13 | 2026-11-23 23:22 | 1.0.13+4ddf4cb | 4ddf4cb | docs: agregar trazabilidad completa y seccion 6 | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.13+4ddf4cb |`
 
 El historial completo de builds está en [`docs/TRAZABILIDAD.md`](TRAZABILIDAD.md).

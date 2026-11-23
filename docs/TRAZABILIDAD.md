@@ -16,3 +16,4 @@ Cada fila la agrega Jenkins al terminar un build (`scripts/trazabilidad.py`).
 | 10 | 2026-11-23 23:01 | 1.0.10+2033b97 | `2033b97` | chore(deps): bump the python-dependencies group with 6 updates | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.10+2033b97 |
 | 11 | 2026-11-23 23:04 | 1.0.11+aea7def | `aea7def` | docs: registrar gestion de dependencias (Dependabot) | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.11+aea7def |
 | 12 | 2026-11-23 23:16 | 1.0.12+2f5ab79 | `2f5ab79` | Update student name in security log | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.12+2f5ab79 |
+| 13 | 2026-11-23 23:22 | 1.0.13+4ddf4cb | `4ddf4cb` | docs: agregar trazabilidad completa y seccion 6 | 9/9 OK | 0/0/0 | 0 vuln. | 0/0/0 | SUCCESS | 1.0.13+4ddf4cb |
