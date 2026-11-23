@@ -151,7 +151,7 @@ def cabeceras_de_seguridad(respuesta):
     """
     respuesta.headers.setdefault("X-Content-Type-Options", "nosniff")
     respuesta.headers.setdefault("X-Frame-Options", "DENY")
-    respuesta.headers.setdefault("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'")
+    respuesta.headers.setdefault("Content-Security-Policy", "default-src 'self'; form-action 'self'; frame-ancestors 'none'")
     respuesta.headers.setdefault("Referrer-Policy", "no-referrer")
     return respuesta
 
