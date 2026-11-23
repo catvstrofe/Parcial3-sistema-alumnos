@@ -65,8 +65,24 @@ pipeline {
             }
         }
 
-        // >>> [ZAP]: aquí van las etapas "Deploy Staging" y "DAST - OWASP ZAP"
+        stage('Deploy Staging') {
+            steps {
+                sh 'bash scripts/deploy.sh staging 5001'
+            }
+        }
 
+        stage('DAST - OWASP ZAP') {
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    sh 'ZAP_MINUTOS_ACTIVO=4 python3 scripts/zap_scan.py http://jenkins:5001'
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'reports/zap-*', allowEmptyArchive: true
+                }
+            }
+        }
         stage('Deploy Producción') {
             // >>> [GATE]: aquí va la condición "when" que protege producción
             steps {
