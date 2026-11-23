@@ -54,6 +54,7 @@ pipeline {
                 sh 'bandit -r app.py -f json -o reports/bandit.json || true'
                 sh 'bandit -r app.py -f txt  -o reports/bandit.txt  || true'
                 sh 'cat reports/bandit.txt'
+                sh 'bandit -r app.py -ll'
             }
         }
 
@@ -84,7 +85,7 @@ pipeline {
             }
         }
         stage('Deploy Producción') {
-            // >>> [GATE]: aquí va la condición "when" que protege producción
+            when { expression { currentBuild.result == null } }
             steps {
                 sh 'bash scripts/deploy.sh produccion 5000'
                 script { env.PRODUCCION = env.APP_VERSION }
