@@ -9,6 +9,7 @@ import os
 import re
 import secrets
 import sqlite3
+import threading
 import time
 
 from flask import Flask, Response, g, jsonify, render_template_string, request, session
@@ -45,9 +46,16 @@ HTTP_PETICIONES = Counter("http_requests_total", "Peticiones HTTP atendidas", ["
 HTTP_LATENCIA = Histogram("http_request_duration_seconds", "Duración de las peticiones HTTP", ["endpoint"])
 LOGIN_FALLIDOS = Counter("login_fallidos_total", "Intentos de inicio de sesión fallidos")
 LOGIN_EXITOSOS = Counter("login_exitosos_total", "Inicios de sesión correctos")
+LOGIN_BLOQUEADOS = Counter("login_bloqueados_total", "Intentos de login bloqueados por límite de tasa")
 SOSPECHOSAS = Counter("peticiones_sospechosas_total", "Peticiones con patrones de ataque", ["tipo"])
 APP_INFO = Gauge("app_info", "Versión desplegada de la aplicación", ["version"])
 APP_INFO.labels(version=VERSION).set(1)
+
+## Límite de intentos fallidos de login por IP (mitigación de fuerza bruta).
+MAX_INTENTOS_FALLIDOS = 20
+VENTANA_BLOQUEO_SEGUNDOS = 60
+INTENTOS_FALLIDOS_POR_IP = {}
+BLOQUEO_LOCK = threading.Lock()
 
 ## Patrones que delatan un intento de ataque (detección, no bloqueo).
 PATRONES_ATAQUE = {
@@ -237,16 +245,33 @@ def buscar_alumnos():
 def login():
     """!
     @brief Valida las credenciales del administrador enviadas por formulario.
-    @return JSON con el resultado; 401 si las credenciales no son válidas.
+    @return JSON con el resultado; 401 si las credenciales no son válidas, 429 si se supera el límite.
     """
     usuario = request.form.get("usuario", "")
     clave = request.form.get("clave", "")
     token = request.form.get("csrf_token", "")
     if not token or token != session.get("csrf_token"):
         return jsonify({"error": "Token CSRF inválido"}), 400
+
+    ip = request.remote_addr or "desconocido"
+    ahora = time.time()
+    with BLOQUEO_LOCK:
+        recientes = [marca for marca in INTENTOS_FALLIDOS_POR_IP.get(ip, []) if ahora - marca < VENTANA_BLOQUEO_SEGUNDOS]
+        if len(recientes) >= MAX_INTENTOS_FALLIDOS:
+            LOGIN_FALLIDOS.inc()
+            LOGIN_BLOQUEADOS.inc()
+            app.logger.warning("Login bloqueado por límite de tasa desde %s", ip)
+            return jsonify({"error": "Demasiados intentos. Intente más tarde."}), 429
+
     if usuario == ADMIN_USUARIO and check_password_hash(ADMIN_CLAVE_HASH, clave):
         LOGIN_EXITOSOS.inc()
+        with BLOQUEO_LOCK:
+            INTENTOS_FALLIDOS_POR_IP.pop(ip, None)
         return jsonify({"mensaje": "Bienvenido, administrador"})
+
+    with BLOQUEO_LOCK:
+        recientes.append(ahora)
+        INTENTOS_FALLIDOS_POR_IP[ip] = recientes
     LOGIN_FALLIDOS.inc()
     app.logger.warning("Login fallido para el usuario '%s' desde %s", usuario, request.remote_addr)
     return jsonify({"error": "Credenciales inválidas"}), 401
