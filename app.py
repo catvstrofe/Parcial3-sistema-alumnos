@@ -138,6 +138,20 @@ def despues_de_la_peticion(respuesta):
     return respuesta
 
 
+@app.after_request
+def cabeceras_de_seguridad(respuesta):
+    """!
+    @brief Agrega cabeceras de seguridad a todas las respuestas.
+    @param respuesta Respuesta que Flask enviará al cliente.
+    @return La misma respuesta con las cabeceras de seguridad.
+    """
+    respuesta.headers.setdefault("X-Content-Type-Options", "nosniff")
+    respuesta.headers.setdefault("X-Frame-Options", "DENY")
+    respuesta.headers.setdefault("Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'")
+    respuesta.headers.setdefault("Referrer-Policy", "no-referrer")
+    return respuesta
+
+
 @app.route("/")
 def portada():
     """!
